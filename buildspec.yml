@@ -1,0 +1,31 @@
+version: 0.1
+env:
+  variables:
+    MYSQL_PASSEORD: "password"
+phases:
+  install:
+    commands:
+      - echo install started on `date`
+      - apt-get update -y
+      - apt-get install -y libssl-dev libreadline-dev zlib1g-dev
+      # MySQL 5.7
+      - apt-get install -y mysql-server-5.7
+      - apt-get install -y rubygems
+      - service mysql start
+      # Rubyの対応バージョンが2.6以上なので必要なバージョンをインストール
+      - rbenv install 2.5.3
+      - gem install bundler -v 1.3.0
+      - bundle install
+  pre_build:
+    commands:
+      # DBセットアップ
+      - rails db:create RAILS_ENV=test
+      - rails db:migrate RAILS_ENV=test
+  build:
+    commands:
+      - echo Build started on `date`
+      # テスト
+      - rspec
+  post_build:
+    commands:
+      - echo Build completed on `date`
